@@ -7,51 +7,71 @@ import Account from '../account/Account'
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import detectEthereumProvider from '@metamask/detect-provider'
+import Web3 from 'web3'
 
 const Home = () => {
   const [hasProvider, setHasProvider] = useState<boolean | null>(null)
-  const initialState = { accounts: [] }
-  const [wallet, setWallet] = useState(initialState)
+
+  const [isConnected, setIsConnected] = useState(false)
+  const [ethBalance, setEthBalance] = useState<any>('')
 
   const router = useRouter()
 
-  useEffect(() => {
-    const getProvider = async () => {
-      const provider = await detectEthereumProvider({ silent: true })
-      console.log(provider)
-      // Transform provider to true or false.
-      setHasProvider(Boolean(provider))
+  const detectCurrentProvider = () => {
+    let provider
+    if (window.ethereum) {
+      provider = window.ethereum
+    } else if (window.web3) {
+      provider = window.web3.currentProvider
+    } else {
+      console.log('Non-ethereum browser detected. You should install Metamask')
     }
-
-    getProvider()
-  }, [])
+    return provider
+  }
 
   // useEffect(() => {
-  //   if (wallet.accounts.length > 0) {
+  //   if (isConnected) {
   //     router.push('/account')
   //   }
-  // }, [router, wallet.accounts.length])
+  // }, [isConnected, router])
 
-  const handleConnect = async () => {
-    let accounts = await window.ethereum.request({
-      method: 'eth_requestAccounts'
-    })
-    setWallet({ accounts })
+  const onConnect = async () => {
+    try {
+      const currentProvider = detectCurrentProvider()
+      if (currentProvider) {
+        await currentProvider.request({ method: 'eth_requestAccounts' })
+        const web3 = new Web3(currentProvider)
+
+        const userAccount = await web3.eth.getAccounts()
+
+        const account = userAccount[0]
+
+        let ethBalance = await web3.eth.getBalance(account)
+        setEthBalance(Number(ethBalance))
+        setIsConnected(true)
+      }
+    } catch (err) {
+      console.log(err)
+    }
   }
 
   return (
-    <div className={styles.wrapper}>
-      <div>Injected Provider {hasProvider ? 'DOES' : 'DOES NOT'} Exist</div>
-
-      {hasProvider /* Updated */ && (
-        <button className={styles.btn} onClick={handleConnect}>
-          Connect MetaMask
-        </button>
+    <>
+      {!isConnected ? (
+        <div className={styles.login}>
+          <button type='button' className={styles.btn} onClick={onConnect}>
+            Login
+          </button>
+        </div>
+      ) : (
+        <div>
+          <h2> You are connected to metamask.</h2>
+          <div>
+            <span>Balance: {Number(ethBalance)}</span>
+          </div>
+        </div>
       )}
-
-      {wallet.accounts.length > 0 /* New */ && <div>Wallet Accounts: {wallet.accounts[0]}</div>}
-    </div>
+    </>
   )
 }
 
