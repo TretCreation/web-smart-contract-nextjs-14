@@ -1,29 +1,38 @@
 'use client'
 
-import { useAppDispatch, useAppSelector } from '@/lib/hooks'
-import { RootState } from '@reduxjs/toolkit/query'
 import React, { FC, useEffect, useState } from 'react'
+import styles from './Account.module.css'
+import abi from '../../data/data'
 
-import Web3 from 'web3'
+interface IAccount {
+  web3: any
+  account: any
+  balance: any
+}
 
-const Account: FC = () => {
-  // const [balance, useBallance] = useState<number>(0)
-  const [ethBalance, setEthBalance] = useState<any>('')
+const Account: FC<IAccount> = ({ web3, account, balance }) => {
+  const [contractMethods, setContractMethods] = useState<any>([])
+  const [contractAddress, setContractAddress] = useState<string>(
+    '0x6631a73B266296eFf7657dCFc3D1568Ec2057Ef3'
+  )
 
-  const account = useAppSelector((state: any) => state.account.items)
-  const dispatch = useAppDispatch()
-  console.log(account)
+  const useContract = async () => {
+    const contract = new web3.eth.Contract(abi, contractAddress)
+    setContractMethods(contract.methods)
+  }
 
-  useEffect(() => {
-    const data = () => {
-      // let ethBalance = await web3.eth.getBalance(account)
-      setEthBalance(Number(ethBalance))
-    }
-  }, [])
   return (
     <div>
       <h2> You are connected to metamask.</h2>
-      <div>{/* <span>Balance: {Number(bbbb)}</span> */}</div>
+      <div>
+        <span>Balance: {balance}</span>
+      </div>
+      <button type='button' className={styles.btn} onClick={useContract}>
+        Contract
+      </button>
+      {Object.keys(contractMethods).map((method: any) => (
+        <div key={method}>{method}</div>
+      ))}
     </div>
   )
 }

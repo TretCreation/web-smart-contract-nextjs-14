@@ -3,19 +3,17 @@
 import React from 'react'
 
 import styles from './Home.module.css'
-import Account from '../account/Account'
 
-import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
+import { useState } from 'react'
 import Web3 from 'web3'
 
+import Account from '../account/Account'
+
 const Home = () => {
-  const [hasProvider, setHasProvider] = useState<boolean | null>(null)
-
+  const [account, setAccount] = useState<string>('')
   const [isConnected, setIsConnected] = useState(false)
-  const [ethBalance, setEthBalance] = useState<any>('')
-
-  const router = useRouter()
+  const [balance, setBalance] = useState<number>(0)
+  const [web3, setWeb3] = useState<any>({})
 
   const detectCurrentProvider = () => {
     let provider
@@ -29,29 +27,29 @@ const Home = () => {
     return provider
   }
 
-  // useEffect(() => {
-  //   if (isConnected) {
-  //     router.push('/account')
-  //   }
-  // }, [isConnected, router])
-
   const onConnect = async () => {
+    const currentProvider = detectCurrentProvider()
+
     try {
-      const currentProvider = detectCurrentProvider()
       if (currentProvider) {
         await currentProvider.request({ method: 'eth_requestAccounts' })
         const web3 = new Web3(currentProvider)
+        setWeb3(web3)
 
-        const userAccount = await web3.eth.getAccounts()
+        const userAccounts = await web3.eth.getAccounts()
+        const userAccount = userAccounts[0]
 
-        const account = userAccount[0]
+        if (userAccount) {
+          setAccount(userAccount)
 
-        let ethBalance = await web3.eth.getBalance(account)
-        setEthBalance(Number(ethBalance))
-        setIsConnected(true)
+          const ethBalance = await web3.eth.getBalance(userAccount)
+          setBalance(Number(ethBalance))
+
+          setIsConnected(true)
+        }
       }
     } catch (err) {
-      console.log(err)
+      console.error('Error connecting to MetaMask:', err)
     }
   }
 
@@ -64,17 +62,10 @@ const Home = () => {
           </button>
         </div>
       ) : (
-        <div>
-          <h2> You are connected to metamask.</h2>
-          <div>
-            <span>Balance: {Number(ethBalance)}</span>
-          </div>
-        </div>
+        <Account web3={web3} account={account} balance={balance} />
       )}
     </>
   )
 }
-
-// () => router.push('/dashboard')
 
 export default Home
