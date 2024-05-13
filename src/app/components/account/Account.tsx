@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/rules-of-hooks */
 'use client'
 
 import React, { FC, useEffect, useState } from 'react'
@@ -12,6 +13,8 @@ interface IAccount {
 
 const Account: FC<IAccount> = ({ web3, account, balance }) => {
   const [isContract, setIsContract] = useState<boolean>(false)
+  const [writeContract, setWriteContract] = useState<any>([])
+  const [readContract, setReadContract] = useState<any>([])
   const [contractMethods, setContractMethods] = useState<any>([])
   const [contractAddress, setContractAddress] = useState<string>(
     '0x6631a73B266296eFf7657dCFc3D1568Ec2057Ef3'
@@ -31,10 +34,30 @@ const Account: FC<IAccount> = ({ web3, account, balance }) => {
 
   const useMethod = (method: any) => {
     // contractMethods[method]().call()
-    contractMethods[method]().send({ from: account })
-    // console.log(contractMethods[method]().call())
-    console.log(contractMethods[method]().send())
+    // contractMethods[method]().send({ from: account })
+    console.log(contractMethods)
+    // console.log(contractMethods[method]().send())
   }
+
+  useEffect(() => {
+    const separateContracts = async () => {
+      const readMethods: any = []
+      const writeMethods: any = []
+
+      abi.forEach(method => {
+        if (method.stateMutability === 'view') {
+          readMethods.push(method.name)
+        } else if (method.stateMutability !== 'nonpayable') {
+          writeMethods.push(method.name)
+        }
+      })
+
+      setWriteContract(writeMethods)
+      setReadContract(readMethods)
+    }
+
+    separateContracts()
+  }, [contractMethods])
 
   return (
     <div className={styles.container}>
@@ -60,12 +83,20 @@ const Account: FC<IAccount> = ({ web3, account, balance }) => {
       </div>
       <div className={styles.right}>
         {isContract ? (
-          Object.keys(contractMethods).map((method: any) => (
-            // eslint-disable-next-line react-hooks/rules-of-hooks
-            <button className={styles.btn} key={method} onClick={() => useMethod(method)}>
-              {method}
-            </button>
-          ))
+          <>
+            <div>
+              <h2>Event (send())</h2>
+              {writeContract.map((contract: any) => (
+                <p key={contract}>{contract}</p>
+              ))}
+            </div>
+            <div>
+              <h2>Func (call())</h2>
+              {readContract.map((contract: any) => (
+                <p key={contract}>{contract}</p>
+              ))}
+            </div>
+          </>
         ) : (
           <div>Contract not found!</div>
         )}
@@ -75,3 +106,22 @@ const Account: FC<IAccount> = ({ web3, account, balance }) => {
 }
 
 export default Account
+
+// {isContract ? (
+//   Object.keys(contractMethods).map((method: any) => (
+//     <div key={method}>
+//       {!method.options && (
+//         <button className={styles.btn} onClick={() => useMethod(method)}>
+//           {method} (call)
+//         </button>
+//       )}
+//       {!method.address && (
+//         <button className={styles.btn} onClick={() => useMethod(method)}>
+//           {method} (send)
+//         </button>
+//       )}
+//     </div>
+//   ))
+// ) : (
+//   <div>Contract not found!</div>
+// )}
