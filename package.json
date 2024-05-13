@@ -13,6 +13,7 @@
     "@reduxjs/toolkit": "^2.2.4",
     "@web3-react/core": "^8.2.3",
     "@web3-react/metamask": "^8.2.4",
+    "axios": "^1.6.8",
     "next": "14.2.1",
     "prettier": "^3.2.5",
     "react": "^18",
