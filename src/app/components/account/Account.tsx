@@ -20,6 +20,7 @@ const Account: FC<IAccount> = ({ web3, account, balance }) => {
   const [abi, setAbi] = useState<any[]>([])
   const [writeContract, setWriteContract] = useState<any[]>([])
   const [readContract, setReadContract] = useState<any[]>([])
+  const [infoContract, setInfoContract] = useState<any[]>([])
 
   const useContract = async () => {
     const contractAbi = await ContractService.getABI(contractAddress)
@@ -40,7 +41,7 @@ const Account: FC<IAccount> = ({ web3, account, balance }) => {
     abi.forEach((method: any) => {
       if (method.stateMutability === 'view') {
         readMethods.push(method.name)
-      } else if (method.stateMutability !== 'nonpayable') {
+      } else if (method.stateMutability === 'nonpayable') {
         writeMethods.push(method.name)
       }
     })
@@ -51,6 +52,17 @@ const Account: FC<IAccount> = ({ web3, account, balance }) => {
 
     setReadContract(readMethods)
     setWriteContract(writeMethods)
+  }
+
+  const writeMethod = (nameMethod: any) => {
+    contractMethods[nameMethod]().send({ from: account })
+    // console.log(contractMethods[nameMethod]().send({ from: account }))
+  }
+
+  const readMethods = (nameMethod: any) => {
+    contractMethods.count().call()
+    console.log(contractMethods.count().call())
+    // console.log(contractMethods[nameMethod]().call())
   }
 
   return (
@@ -79,15 +91,24 @@ const Account: FC<IAccount> = ({ web3, account, balance }) => {
         {isContract ? (
           <>
             <div>
-              <h2>Event #send()</h2>
-              {Object.keys(writeContract).map((method: string) => (
-                <p key={method}>{method}</p>
+              <h2>Event send()</h2>
+              {writeContract.map((nameMethod: string) => (
+                //TODO: fix .toLowerCase()
+                <button type='button' key={nameMethod} onClick={() => writeMethod(nameMethod)}>
+                  {nameMethod}
+                </button>
               ))}
             </div>
             <div>
-              <h2>Function #call()#</h2>
-              {Object.keys(readContract).map((method: string) => (
-                <p key={method}>{method}</p>
+              <h2>Function call()</h2>
+              {readContract.map((nameMethod: string) => (
+                <button
+                  type='button'
+                  key={nameMethod}
+                  onClick={() => readMethods(nameMethod.toLowerCase())}
+                >
+                  {nameMethod}
+                </button>
               ))}
             </div>
           </>
