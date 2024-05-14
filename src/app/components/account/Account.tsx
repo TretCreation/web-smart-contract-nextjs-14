@@ -12,8 +12,9 @@ interface IAccount {
 }
 
 const Account: FC<IAccount> = ({ web3, account, balance }) => {
-  // const defaultAddress: any = process.env.DEFAULT_CONTRACT_ADDRESS
   const defaultAddress: string = '0xeDb8b1d5aFc39303eD70a0aDDf4781DA17515703'
+
+  const [updBalance, setUpdBalance] = useState<any>(balance)
 
   const [isContract, setIsContract] = useState<boolean>(false)
   const [contractMethods, setContractMethods] = useState<any>({})
@@ -71,9 +72,11 @@ const Account: FC<IAccount> = ({ web3, account, balance }) => {
     contractMethods[nameMethod]().call()
   }
 
-  const payableMethods = (nameMethod: any, count: number) => {
+  const payableMethods = async (nameMethod: any, count: number) => {
     contractMethods[nameMethod]().send({ from: account, value: count })
-    // console.log(contractMethods[nameMethod]().send({ from: account, value: count }))
+
+    const ethBalance = await web3.eth.getBalance(account)
+    setUpdBalance(Number(ethBalance))
   }
 
   return (
@@ -82,7 +85,7 @@ const Account: FC<IAccount> = ({ web3, account, balance }) => {
         <div className={styles.account}>
           <h2>You are connected to Metamask.</h2>
           <div>
-            <span>Balance: {balance}</span>
+            <span>Balance: {updBalance}</span>
           </div>
         </div>
         <div className={styles.contract}>
