@@ -1,7 +1,5 @@
 import axios from 'axios'
 
-// axios.defaults.baseURL = process.env.DEFAULT_ETHERSCAN_API_URL
-
 export const ContractService = {
   async getABI(contractAddress: string) {
     try {

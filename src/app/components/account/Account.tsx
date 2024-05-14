@@ -12,7 +12,8 @@ interface IAccount {
 }
 
 const Account: FC<IAccount> = ({ web3, account, balance }) => {
-  const defaultAddress: any = process.env.DEFAULT_CONTRACT_ADDRESS
+  // const defaultAddress: any = process.env.DEFAULT_CONTRACT_ADDRESS
+  const defaultAddress: string = '0xeDb8b1d5aFc39303eD70a0aDDf4781DA17515703'
 
   const [isContract, setIsContract] = useState<boolean>(false)
   const [contractMethods, setContractMethods] = useState<any>({})
@@ -20,7 +21,8 @@ const Account: FC<IAccount> = ({ web3, account, balance }) => {
   const [abi, setAbi] = useState<any[]>([])
   const [writeContract, setWriteContract] = useState<any[]>([])
   const [readContract, setReadContract] = useState<any[]>([])
-  const [infoContract, setInfoContract] = useState<any[]>([])
+  const [payableContract, setPayableContract] = useState<any[]>([])
+  const [inputValue, setInputValue] = useState<any>()
 
   const useContract = async () => {
     const contractAbi = await ContractService.getABI(contractAddress)
@@ -36,6 +38,8 @@ const Account: FC<IAccount> = ({ web3, account, balance }) => {
   const parseContracts = async () => {
     const readMethods: any = []
     const writeMethods: any = []
+    const payableMethods: any = []
+
     console.log('abi', abi)
 
     abi.forEach((method: any) => {
@@ -43,26 +47,33 @@ const Account: FC<IAccount> = ({ web3, account, balance }) => {
         readMethods.push(method.name)
       } else if (method.stateMutability === 'nonpayable') {
         writeMethods.push(method.name)
+      } else if (method.stateMutability === 'payable') {
+        payableMethods.push(method.name)
       }
     })
 
     console.log('abi', abi)
     console.log('writeMethods', writeMethods)
     console.log('readMethods', readMethods)
+    console.log('payableMethods', payableMethods)
 
+    setPayableContract(payableMethods)
     setReadContract(readMethods)
     setWriteContract(writeMethods)
   }
 
   const writeMethod = (nameMethod: any) => {
     contractMethods[nameMethod]().send({ from: account })
-    // console.log(contractMethods[nameMethod]().send({ from: account }))
   }
 
   const readMethods = (nameMethod: any) => {
-    contractMethods.count().call()
-    console.log(contractMethods.count().call())
-    // console.log(contractMethods[nameMethod]().call())
+    console.log(contractMethods[nameMethod]().call())
+    contractMethods[nameMethod]().call()
+  }
+
+  const payableMethods = (nameMethod: any, count: number) => {
+    contractMethods[nameMethod]().send({ from: account, value: count })
+    // console.log(contractMethods[nameMethod]().send({ from: account, value: count }))
   }
 
   return (
@@ -91,25 +102,33 @@ const Account: FC<IAccount> = ({ web3, account, balance }) => {
         {isContract ? (
           <>
             <div>
-              <h2>Event send()</h2>
+              <h2>Event</h2>
               {writeContract.map((nameMethod: string) => (
-                //TODO: fix .toLowerCase()
                 <button type='button' key={nameMethod} onClick={() => writeMethod(nameMethod)}>
                   {nameMethod}
                 </button>
               ))}
             </div>
             <div>
-              <h2>Function call()</h2>
+              <h2>Function</h2>
               {readContract.map((nameMethod: string) => (
+                <button type='button' key={nameMethod} onClick={() => readMethods(nameMethod)}>
+                  {nameMethod}
+                </button>
+              ))}
+            </div>
+            <div>
+              <h2>Payable</h2>
+              {payableContract.map(nameMethod => (
                 <button
                   type='button'
                   key={nameMethod}
-                  onClick={() => readMethods(nameMethod.toLowerCase())}
+                  onClick={() => payableMethods(nameMethod, inputValue)}
                 >
                   {nameMethod}
                 </button>
               ))}
+              <input type='text' value={inputValue} onChange={e => setInputValue(e.target.value)} />
             </div>
           </>
         ) : (
@@ -121,30 +140,3 @@ const Account: FC<IAccount> = ({ web3, account, balance }) => {
 }
 
 export default Account
-
-// useEffect(() => {
-//   const separateContracts = async () => {
-//     const readMethods: any = []
-//     const writeMethods: any = []
-
-//     abi.forEach((method: any) => {
-//       if (method.stateMutability === 'view') {
-//         readMethods.push(method.name)
-//       } else if (method.stateMutability !== 'nonpayable') {
-//         writeMethods.push(method.name)
-//       }
-//     })
-
-//     setWriteContract(writeMethods)
-//     setReadContract(readMethods)
-//   }
-//   separateContracts()
-// }, [contractMethods])
-
-// const useMethod = (method: any) => {
-//   contractMethods[method]().call()
-//   contractMethods[method]().send({ from: account })
-//   console.log(contractMethods)
-//   console.log(contractMethods[method]().call())
-//   console.log(contractMethods[method]().send())
-// }
