@@ -54,17 +54,21 @@ const Home = () => {
   }
 
   return (
-    <>
+    <div className={styles.wrapper}>
       {!isConnected ? (
-        <div className={styles.login}>
-          <button type='button' className={styles.btn} onClick={onConnect}>
-            Login
-          </button>
+        <div className={styles.container}>
+          <div className={styles.form}>
+            <h1 className={styles.h1}>Connect your wallet</h1>
+            <h3 className={styles.h3}>To begin, please connect your MetaMask wallet.</h3>
+            <button type='button' className={styles.btn} onClick={onConnect}>
+              Connect MetaMask
+            </button>
+          </div>
         </div>
       ) : (
         <Account web3={web3} account={account} balance={balance} />
       )}
-    </>
+    </div>
   )
 }
 

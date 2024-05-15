@@ -1,27 +1,108 @@
-.container {
+.wallet {
   display: flex;
+  border: 2px solid rgba(255, 0, 0, 0);
+  border-radius: 10px;
+  padding: 20px;
+  background-color: white;
+  justify-content: center;
+  margin-bottom: 40px;
+}
 
-  .btn {
-    margin-top: 0.5em;
-  }
+.search {
+  display: flex;
+  border: 2px solid rgba(255, 0, 0, 0);
+  border-radius: 10px;
+  padding: 20px;
+  background-color: white;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 40px;
+}
 
-  .left {
-    flex: 1;
+.input {
+  position: relative;
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  max-width: 420px;
+  margin-right: 20px;
+  border-radius: 2px;
+  padding: 1rem 1rem 1rem;
+  background: #f4f4f4;
+}
 
-    .account {
-    }
-    .contract {
-      .input {
-        margin-right: 1em;
-      }
-    }
-  }
+.input-methods {
+  position: relative;
+  display: flex;
+  width: 100%;
+  max-width: 420px;
+  margin-right: 20px;
+  border-radius: 2px;
+  padding: 1rem 1rem 1rem;
+  background: #f4f4f4;
+}
 
-  .right {
-    flex: 1;
+.btn {
+  align-items: center;
+  background-clip: padding-box;
+  background-color: #fa6400;
+  border: 1px solid transparent;
+  border-radius: 0.25rem;
+  box-shadow: rgba(0, 0, 0, 0.02) 0 1px 3px 0;
+  color: #fff;
+  display: inline-flex;
+  font-size: 16px;
+  font-weight: 600;
+  justify-content: center;
+  line-height: 1.25;
+  margin: 0;
+  min-height: 3rem;
+  padding: calc(0.875rem - 1px) calc(1.5rem - 1px);
+  position: relative;
+  user-select: none;
+}
 
-    .btn {
-      margin-right: 0.5em;
-    }
-  }
+.btn-methods {
+  align-items: center;
+  background-clip: padding-box;
+  background-color: #fa6400;
+  border: 1px solid transparent;
+  border-radius: 0.25rem;
+  box-shadow: rgba(0, 0, 0, 0.02) 0 1px 3px 0;
+  color: #fff;
+  display: inline-flex;
+  font-size: 16px;
+  font-weight: 600;
+  justify-content: center;
+  line-height: 1.25;
+  margin: 0;
+  min-height: 3rem;
+  padding: calc(0.875rem - 1px) calc(1.5rem - 1px);
+  position: relative;
+  user-select: none;
+
+  margin-right: 20px;
+  margin-bottom: 20px;
+}
+
+.contract {
+  display: flex;
+  border: 2px solid rgba(255, 0, 0, 0);
+  border-radius: 10px;
+  padding: 20px;
+  background-color: white;
+  justify-content: center;
+}
+
+.read {
+  flex: 1;
+}
+
+.write {
+  flex: 1;
+}
+
+.payable {
+  display: flex;
+  flex-direction: row;
 }
