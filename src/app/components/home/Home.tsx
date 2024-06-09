@@ -6,6 +6,7 @@ import styles from './Home.module.css'
 
 import { useState } from 'react'
 import Web3 from 'web3'
+import { ConnectWallet } from '@thirdweb-dev/react'
 
 import Account from '../account/Account'
 
@@ -15,47 +16,49 @@ const Home = () => {
   const [balance, setBalance] = useState<number>(0)
   const [web3, setWeb3] = useState<any>({})
 
-  const detectCurrentProvider = () => {
-    let provider
-    if (window.ethereum) {
-      provider = window.ethereum
-    } else if (window.web3) {
-      provider = window.web3.currentProvider
-    } else {
-      console.log('Non-ethereum browser detected. You should install Metamask')
-    }
-    return provider
-  }
+  // const detectCurrentProvider = () => {
+  //   let provider: any
 
-  const onConnect = async () => {
-    const currentProvider = detectCurrentProvider()
+  //   if ((window as any).ethereum) {
+  //     provider = (window as any).ethereum
+  //   } else if ((window as any).web3) {
+  //     provider = (window as any).web3.currentProvider
+  //   } else {
+  //     console.log('Non-ethereum browser detected. You should install Metamask')
+  //   }
 
-    try {
-      if (currentProvider) {
-        await currentProvider.request({ method: 'eth_requestAccounts' })
-        const web3 = new Web3(currentProvider)
-        setWeb3(web3)
+  //   return provider
+  // }
 
-        const userAccounts = await web3.eth.getAccounts()
-        const userAccount = userAccounts[0]
+  // const onConnect = async () => {
+  //   const currentProvider = detectCurrentProvider()
 
-        if (userAccount) {
-          setAccount(userAccount)
+  //   try {
+  //     if (currentProvider) {
+  //       await currentProvider.request({ method: 'eth_requestAccounts' })
+  //       const web3 = new Web3(currentProvider)
+  //       setWeb3(web3)
 
-          const ethBalance = await web3.eth.getBalance(userAccount)
-          setBalance(Number(ethBalance))
+  //       const userAccounts = await web3.eth.getAccounts()
+  //       const userAccount = userAccounts[0]
 
-          setIsConnected(true)
-        }
-      }
-    } catch (err) {
-      console.error('Error connecting to MetaMask:', err)
-    }
-  }
+  //       if (userAccount) {
+  //         setAccount(userAccount)
+
+  //         const ethBalance = await web3.eth.getBalance(userAccount)
+  //         setBalance(Number(ethBalance))
+
+  //         setIsConnected(true)
+  //       }
+  //     }
+  //   } catch (err) {
+  //     console.error('Error connecting to MetaMask:', err)
+  //   }
+  // }
 
   return (
     <div className={styles.wrapper}>
-      {!isConnected ? (
+      {/* {!isConnected ? (
         <div className={styles.container}>
           <div className={styles.form}>
             <h1 className={styles.h1}>Connect your wallet</h1>
@@ -67,7 +70,8 @@ const Home = () => {
         </div>
       ) : (
         <Account web3={web3} account={account} balance={balance} />
-      )}
+      )} */}
+      <ConnectWallet />
     </div>
   )
 }
