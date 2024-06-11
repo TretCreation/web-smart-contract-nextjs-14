@@ -1,20 +1,25 @@
 'use client'
 
-import React from 'react'
+import React, { useEffect } from 'react'
 
 import styles from './Home.module.css'
 
 import { useState } from 'react'
 import Web3 from 'web3'
-import { ConnectWallet } from '@thirdweb-dev/react'
+import { ConnectWallet, useAddress, useBalance } from '@thirdweb-dev/react'
 
 import Account from '../account/Account'
+import { useAccount, useReadContract } from 'wagmi'
+import { ContractService } from '@/app/servers/contract.service'
 
 const Home = () => {
-  const [account, setAccount] = useState<string>('')
-  const [isConnected, setIsConnected] = useState(false)
-  const [balance, setBalance] = useState<number>(0)
-  const [web3, setWeb3] = useState<any>({})
+  // const balance = useBalance()
+  // const accAddress = useAddress()
+  // const provider = useProv
+  // const [account, setAccount] = useState<string>('')
+  // const [isConnected, setIsConnected] = useState(false)
+  // const [balance, setBalance] = useState<number>(0)
+  // const [web3, setWeb3] = useState<any>({})
 
   // const detectCurrentProvider = () => {
   //   let provider: any
@@ -32,48 +37,54 @@ const Home = () => {
 
   // const onConnect = async () => {
   //   const currentProvider = detectCurrentProvider()
+  //   console.log('ttttt: ', currentProvider)
+  // try {
+  //   if (currentProvider) {
+  //     await currentProvider.request({ method: 'eth_requestAccounts' })
+  //     const web3 = new Web3(currentProvider)
+  //     setWeb3(web3)
 
-  //   try {
-  //     if (currentProvider) {
-  //       await currentProvider.request({ method: 'eth_requestAccounts' })
-  //       const web3 = new Web3(currentProvider)
-  //       setWeb3(web3)
+  //     const userAccounts = await web3.eth.getAccounts()
+  //     const userAccount = userAccounts[0]
 
-  //       const userAccounts = await web3.eth.getAccounts()
-  //       const userAccount = userAccounts[0]
+  //     if (userAccount) {
+  //       setAccount(userAccount)
 
-  //       if (userAccount) {
-  //         setAccount(userAccount)
+  //       const ethBalance = await web3.eth.getBalance(userAccount)
+  //       setBalance(Number(ethBalance))
 
-  //         const ethBalance = await web3.eth.getBalance(userAccount)
-  //         setBalance(Number(ethBalance))
-
-  //         setIsConnected(true)
-  //       }
+  //       setIsConnected(true)
   //     }
-  //   } catch (err) {
-  //     console.error('Error connecting to MetaMask:', err)
   //   }
+  // } catch (err) {
+  //   console.error('Error connecting to MetaMask:', err)
   // }
+  // }
+
+  // useEffect(() => {
+  //   onConnect()
+  // }, [accAddress])
+
+  const account = useAccount()
 
   return (
     <div className={styles.wrapper}>
-      {/* {!isConnected ? (
-        <div className={styles.container}>
-          <div className={styles.form}>
-            <h1 className={styles.h1}>Connect your wallet</h1>
-            <h3 className={styles.h3}>To begin, please connect your MetaMask wallet.</h3>
-            <button type='button' className={styles.btn} onClick={onConnect}>
-              Connect MetaMask
-            </button>
-          </div>
-        </div>
-      ) : (
-        <Account web3={web3} account={account} balance={balance} />
-      )} */}
-      <ConnectWallet />
+      {!account?.address ? (<w3m-button />): <Account account={account}/>}
+      
+      {/* <ConnectWallet /> */}
+      {/* {!accAddress ? <ConnectWallet /> : <Account accAddress={accAddress} balance={balance} />} */}
     </div>
   )
 }
 
 export default Home
+
+// <div className={styles.container}>
+// <div className={styles.form}>
+//   <h1 className={styles.h1}>Connect your wallet</h1>
+//   <h3 className={styles.h3}>To begin, please connect your MetaMask wallet.</h3>
+//   <button type='button' className={styles.btn} onClick={onConnect}>
+//     Connect MetaMask
+//   </button>
+// </div>
+// </div>

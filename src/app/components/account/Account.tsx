@@ -4,38 +4,51 @@
 import React, { FC, useEffect, useState } from 'react'
 import styles from './Account.module.css'
 import { ContractService } from '@/app/servers/contract.service'
+import { useReadContract } from 'wagmi'
 
 interface IAccount {
-  web3: any
+  // web3: any
+  // accAddress: any
+  // balance: any
   account: any
-  balance: any
 }
 
-const Account: FC<IAccount> = ({ web3, account, balance }) => {
+const Account: FC<IAccount> = ({ account }) => {
   const defaultAddress: string = '0xeDb8b1d5aFc39303eD70a0aDDf4781DA17515703'
 
-  const [updBalance, setUpdBalance] = useState<any>(balance)
+  // const [updBalance, setUpdBalance] = useState<any>(balance)
+  const [abi, setAbi] = useState<any>([])
 
   const [isContract, setIsContract] = useState<boolean>(false)
-  const [contractMethods, setContractMethods] = useState<any>({})
+  // const [contractMethods, setContractMethods] = useState<any>({})
   const [contractAddress, setContractAddress] = useState<string>(defaultAddress)
-  const [abi, setAbi] = useState<any[]>([])
   const [writeContract, setWriteContract] = useState<any[]>([])
   const [readContract, setReadContract] = useState<any[]>([])
   const [payableContract, setPayableContract] = useState<any[]>([])
   const [inputValue, setInputValue] = useState<any>()
+  const [result, setResult] = useState<any>()
+  // const [web3, setWeb3] = useState<any>()
 
   const [resWriteContract, setResWriteContract] = useState<any>()
   const [resReadContract, setResReadContract] = useState<any>()
 
   const useContract = async () => {
-    const contractAbi = await ContractService.getABI(contractAddress)
-    const contract = new web3.eth.Contract(contractAbi, contractAddress)
+    const abiContract = await ContractService.getABI(contractAddress)
+    if (abiContract) {
+      setAbi(abiContract)
+      setIsContract(true)
+      parseContracts()
+    }
+  }
 
-    setAbi(contractAbi)
-    setContractMethods(contract.methods)
-    parseContracts()
-    setIsContract(true)
+  const { data } = useReadContract({
+    abi,
+    address: contractAddress,
+    functionName: 'getCount'
+  })
+
+  const getResult = () => {
+    setResult(String(data))
   }
 
   const parseContracts = async () => {
@@ -58,34 +71,29 @@ const Account: FC<IAccount> = ({ web3, account, balance }) => {
     setWriteContract(writeMethods)
   }
 
-  const writeMethod = (nameMethod: any) => {
-    const res = contractMethods[nameMethod]().send({ from: account })
-    setResWriteContract(res)
-  }
+  // const writeMethod = (nameMethod: any) => {
+  //   const res = contractMethods[nameMethod]().send({ from: accAddress })
+  //   setResWriteContract(res)
+  // }
 
-  const readMethods = async (nameMethod: any) => {
-    const res = await contractMethods[nameMethod]().call()
-    console.log('response', res)
-    setResReadContract(res)
-  }
+  // const readMethods = async (nameMethod: any) => {
+  //   const res = await contractMethods[nameMethod]().call()
+  //   console.log('response', res)
+  //   setResReadContract(res)
+  // }
 
-  const payableMethods = async (nameMethod: any, count: number) => {
-    contractMethods[nameMethod]().send({ from: account, value: count })
+  // const payableMethods = async (nameMethod: any, count: number) => {
+  //   contractMethods[nameMethod]().send({ from: accAddress, value: count })
 
-    //TODO: make upd balance after payment
-    const ethBalance = await web3.eth.getBalance(account)
-    setUpdBalance(Number(ethBalance))
-  }
+  //TODO: make upd balance after payment
+  //   const ethBalance = await web3.eth.getBalance(accAddress)
+  //   setUpdBalance(Number(ethBalance))
+  // }
 
   return (
     <>
       <div className={styles.wallet}>
-        <div>
-          <p>You are connected to Metamask.</p>
-          <p>Your wallet: {account}</p>
-          {/* TODO: Correct Balance */}
-          <span>Balance: {updBalance}</span>
-        </div>
+        <w3m-button />
       </div>
       <div className={styles.search}>
         <input
@@ -98,65 +106,68 @@ const Account: FC<IAccount> = ({ web3, account, balance }) => {
         <button type='button' className={styles.btn} onClick={useContract}>
           Start
         </button>
-      </div>
-      {isContract ? (
-        <div className={styles.contract}>
-          <div className={styles.read}>
-            <h2>Read</h2>
-            <div>
-              {readContract.map((nameMethod: string) => (
-                <button
-                  type='button'
-                  key={nameMethod}
-                  className={styles['btn-methods']}
-                  onClick={() => readMethods(nameMethod)}
-                >
-                  {nameMethod}
-                </button>
-              ))}
-            </div>
-            {/* <div>Response: {resReadContract}</div> */}
-          </div>
-          <div className={styles.write}>
-            <h2>Write</h2>
-            <div>
-              {writeContract.map((nameMethod: string) => (
-                <button
-                  type='button'
-                  key={nameMethod}
-                  className={styles['btn-methods']}
-                  onClick={() => writeMethod(nameMethod)}
-                >
-                  {nameMethod}
-                </button>
-              ))}
-            </div>
-            {/* <div>Response: {resWriteContract}</div> */}
-            <div className={styles.payable}>
-              {payableContract.map(nameMethod => (
-                <div key={nameMethod}>
+        {isContract ? (
+          <div className={styles.contract}>
+            <div className={styles.show}>Result: {result}</div>
+            <div className={styles.read}>
+              <h2>Read</h2>
+              <div>
+                {readContract.map((nameMethod: string) => (
                   <button
                     type='button'
                     key={nameMethod}
                     className={styles['btn-methods']}
-                    onClick={() => payableMethods(nameMethod, inputValue)}
+                    onClick={() => getResult()}
                   >
                     {nameMethod}
                   </button>
-                  <input
-                    type='text'
-                    value={inputValue}
-                    className={styles['input-methods']}
-                    onChange={e => setInputValue(e.target.value)}
-                  />
-                </div>
-              ))}
+                ))}
+              </div>
+              {/* <div>Response: {resReadContract}</div> */}
+            </div>
+            <div className={styles.write}>
+              <h2>Write</h2>
+              <div>
+                {writeContract.map((nameMethod: string) => (
+                  <button
+                    type='button'
+                    key={nameMethod}
+                    className={styles['btn-methods']}
+                    onClick={() => getResult()}
+                    // onClick={() => writeMethod(nameMethod)}
+                  >
+                    {nameMethod}
+                  </button>
+                ))}
+              </div>
+              {/* <div>Response: {resWriteContract}</div> */}
+              <div className={styles.payable}>
+                {payableContract.map(nameMethod => (
+                  <div key={nameMethod}>
+                    <button
+                      type='button'
+                      key={nameMethod}
+                      className={styles['btn-methods']}
+                      onClick={() => getResult()}
+                      // onClick={() => payableMethods(nameMethod, inputValue)}
+                    >
+                      {nameMethod}
+                    </button>
+                    <input
+                      type='text'
+                      value={inputValue}
+                      className={styles['input-methods']}
+                      onChange={e => setInputValue(e.target.value)}
+                    />
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
-        </div>
-      ) : (
-        <div>Contract not found!</div>
-      )}
+        ) : (
+          <div>Contract not found!</div>
+        )}
+      </div>
     </>
   )
 }

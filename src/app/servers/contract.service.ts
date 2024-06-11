@@ -1,7 +1,7 @@
 import axios from 'axios'
 
 export const ContractService = {
-  async getABI(contractAddress: string) {
+  async getABI(contractAddress: any) {
     try {
       const res = await axios.get(
         `https://api-sepolia.etherscan.io/api?module=contract&action=getabi&address=${contractAddress}&apikey=${process.env.ETHERSCAN_API_KEY}`
