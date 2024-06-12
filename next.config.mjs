@@ -6,6 +6,10 @@ const nextConfig = {
     DEFAULT_URL: process.env.DEFAULT_URL,
     DEFAULT_ETHERSCAN_API_URL: process.env.DEFAULT_ETHERSCAN_API_URL,
     NEXT_PUBLIC_PROJECT_ID: process.env.NEXT_PUBLIC_PROJECT_ID
+  },
+  webpack: config => {
+    config.externals.push('pino-pretty', 'lokijs', 'encoding')
+    return config
   }
 }
 

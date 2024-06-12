@@ -4,33 +4,25 @@
 import React, { FC, useEffect, useState } from 'react'
 import styles from './Account.module.css'
 import { ContractService } from '@/app/servers/contract.service'
-import { useReadContract } from 'wagmi'
+import { useReadContract, useWriteContract } from 'wagmi'
 
 interface IAccount {
-  // web3: any
-  // accAddress: any
-  // balance: any
   account: any
 }
 
 const Account: FC<IAccount> = ({ account }) => {
   const defaultAddress: string = '0xeDb8b1d5aFc39303eD70a0aDDf4781DA17515703'
+  const { writeContract } = useWriteContract()
 
-  // const [updBalance, setUpdBalance] = useState<any>(balance)
   const [abi, setAbi] = useState<any>([])
-
   const [isContract, setIsContract] = useState<boolean>(false)
-  // const [contractMethods, setContractMethods] = useState<any>({})
   const [contractAddress, setContractAddress] = useState<string>(defaultAddress)
-  const [writeContract, setWriteContract] = useState<any[]>([])
-  const [readContract, setReadContract] = useState<any[]>([])
+  const [writeContracts, setWriteContracts] = useState<any[]>([])
+  const [readContracts, setReadContracts] = useState<any[]>([])
   const [payableContract, setPayableContract] = useState<any[]>([])
   const [inputValue, setInputValue] = useState<any>()
   const [result, setResult] = useState<any>()
-  // const [web3, setWeb3] = useState<any>()
-
-  const [resWriteContract, setResWriteContract] = useState<any>()
-  const [resReadContract, setResReadContract] = useState<any>()
+  const [methodName, setMethodName] = useState<string>('')
 
   const useContract = async () => {
     const abiContract = await ContractService.getABI(contractAddress)
@@ -44,12 +36,14 @@ const Account: FC<IAccount> = ({ account }) => {
   const { data } = useReadContract({
     abi,
     address: contractAddress,
-    functionName: 'getCount'
+    functionName: methodName
   })
 
-  const getResult = () => {
-    setResult(String(data))
-  }
+  useEffect(() => {
+    if (data !== undefined) {
+      setResult(String(data))
+    }
+  }, [data])
 
   const parseContracts = async () => {
     const readMethods: any = []
@@ -67,28 +61,9 @@ const Account: FC<IAccount> = ({ account }) => {
     })
 
     setPayableContract(payableMethods)
-    setReadContract(readMethods)
-    setWriteContract(writeMethods)
+    setReadContracts(readMethods)
+    setWriteContracts(writeMethods)
   }
-
-  // const writeMethod = (nameMethod: any) => {
-  //   const res = contractMethods[nameMethod]().send({ from: accAddress })
-  //   setResWriteContract(res)
-  // }
-
-  // const readMethods = async (nameMethod: any) => {
-  //   const res = await contractMethods[nameMethod]().call()
-  //   console.log('response', res)
-  //   setResReadContract(res)
-  // }
-
-  // const payableMethods = async (nameMethod: any, count: number) => {
-  //   contractMethods[nameMethod]().send({ from: accAddress, value: count })
-
-  //TODO: make upd balance after payment
-  //   const ethBalance = await web3.eth.getBalance(accAddress)
-  //   setUpdBalance(Number(ethBalance))
-  // }
 
   return (
     <>
@@ -112,35 +87,39 @@ const Account: FC<IAccount> = ({ account }) => {
             <div className={styles.read}>
               <h2>Read</h2>
               <div>
-                {readContract.map((nameMethod: string) => (
+                {readContracts.map((nameMethod: string) => (
                   <button
                     type='button'
                     key={nameMethod}
                     className={styles['btn-methods']}
-                    onClick={() => getResult()}
+                    onClick={() => setMethodName(nameMethod)}
                   >
                     {nameMethod}
                   </button>
                 ))}
               </div>
-              {/* <div>Response: {resReadContract}</div> */}
             </div>
             <div className={styles.write}>
               <h2>Write</h2>
               <div>
-                {writeContract.map((nameMethod: string) => (
+                {writeContracts.map((nameMethod: string) => (
                   <button
                     type='button'
                     key={nameMethod}
                     className={styles['btn-methods']}
-                    onClick={() => getResult()}
-                    // onClick={() => writeMethod(nameMethod)}
+                    onClick={() =>
+                      writeContract({
+                        abi,
+                        address: contractAddress,
+                        functionName: nameMethod,
+                        args: []
+                      })
+                    }
                   >
                     {nameMethod}
                   </button>
                 ))}
               </div>
-              {/* <div>Response: {resWriteContract}</div> */}
               <div className={styles.payable}>
                 {payableContract.map(nameMethod => (
                   <div key={nameMethod}>
@@ -148,8 +127,15 @@ const Account: FC<IAccount> = ({ account }) => {
                       type='button'
                       key={nameMethod}
                       className={styles['btn-methods']}
-                      onClick={() => getResult()}
-                      // onClick={() => payableMethods(nameMethod, inputValue)}
+                      onClick={() =>
+                        writeContract({
+                          abi,
+                          address: contractAddress,
+                          functionName: nameMethod,
+                          args: [],
+                          value: inputValue
+                        })
+                      }
                     >
                       {nameMethod}
                     </button>
