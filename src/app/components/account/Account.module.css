@@ -5,6 +5,7 @@
   padding: 20px;
   background-color: white;
   justify-content: center;
+  align-items: center; /* Center elements vertically */
   margin-bottom: 40px;
 }
 
@@ -15,7 +16,7 @@
   padding: 20px;
   background-color: white;
   justify-content: center;
-  align-items: center;
+  align-items: center; /* Center elements vertically */
   margin-bottom: 40px;
 }
 
@@ -82,7 +83,7 @@
   user-select: none;
 
   margin-right: 20px;
-  margin-bottom: 20px;
+  margin-bottom: 40px;
 }
 
 .contract {
@@ -92,17 +93,20 @@
   padding: 20px;
   background-color: white;
   justify-content: center;
+  align-items: center; /* Center elements vertically */
+  flex-direction: column; /* Arrange children vertically */
+  margin-bottom: 40px;
 }
 
-.read {
-  flex: 1;
-}
-
+.read,
 .write {
-  flex: 1;
+  display: flex;
+  flex-direction: column; /* Arrange children vertically */
+  align-items: center; /* Center elements horizontally */
 }
 
 .payable {
   display: flex;
-  flex-direction: row;
+  flex-direction: column; /* Arrange children vertically */
+  align-items: center; /* Center elements horizontally */
 }

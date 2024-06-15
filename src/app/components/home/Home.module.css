@@ -35,23 +35,5 @@
     justify-content: center;
     align-items: center;
     height: 100vh;
-
-    .form {
-      border: 2px solid rgba(255, 0, 0, 0);
-      border-radius: 10px;
-      padding: 20px;
-      background-color: white;
-      text-align: center;
-
-      .h1 {
-        font-size: 24px;
-        margin-bottom: 10px;
-      }
-
-      .h3 {
-        font-size: 16px;
-        margin-bottom: 30px;
-      }
-    }
   }
 }

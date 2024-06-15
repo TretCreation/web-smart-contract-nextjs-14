@@ -1,4 +1,3 @@
-/* eslint-disable react-hooks/rules-of-hooks */
 'use client'
 
 import React, { FC, useEffect, useState } from 'react'
@@ -6,11 +5,7 @@ import styles from './Account.module.css'
 import { ContractService } from '@/app/servers/contract.service'
 import { useReadContract, useWriteContract } from 'wagmi'
 
-interface IAccount {
-  account: any
-}
-
-const Account: FC<IAccount> = ({ account }) => {
+const Account: FC = () => {
   const defaultAddress: string = '0xeDb8b1d5aFc39303eD70a0aDDf4781DA17515703'
   const { writeContract } = useWriteContract()
 
@@ -23,6 +18,7 @@ const Account: FC<IAccount> = ({ account }) => {
   const [inputValue, setInputValue] = useState<any>()
   const [result, setResult] = useState<any>()
   const [methodName, setMethodName] = useState<string>('')
+  const [trigger, setTrigger] = useState<boolean>(false)
 
   const useContract = async () => {
     const abiContract = await ContractService.getABI(contractAddress)
@@ -42,13 +38,20 @@ const Account: FC<IAccount> = ({ account }) => {
   useEffect(() => {
     if (data !== undefined) {
       setResult(String(data))
+      console.log('result', data)
     }
   }, [data])
 
+  useEffect(() => {
+    if (methodName) {
+      setTrigger(!trigger)
+    }
+  }, [methodName])
+
   const parseContracts = async () => {
-    const readMethods: any = []
-    const writeMethods: any = []
-    const payableMethods: any = []
+    const readMethods: string[] = []
+    const writeMethods: string[] = []
+    const payableMethods: string[] = []
 
     abi.forEach((method: any) => {
       if (method.stateMutability === 'view') {
@@ -65,10 +68,36 @@ const Account: FC<IAccount> = ({ account }) => {
     setWriteContracts(writeMethods)
   }
 
+  const handleReadMethodClick = (nameMethod: string) => {
+    setMethodName('')
+    setTimeout(() => {
+      setMethodName(nameMethod)
+    }, 0)
+  }
+
+  const handleWriteMethodClick = (nameMethod: string) => {
+    writeContract({
+      abi,
+      address: contractAddress,
+      functionName: nameMethod,
+      args: []
+    })
+  }
+
+  const handlePayableMethodClick = (nameMethod: string) => {
+    writeContract({
+      abi,
+      address: contractAddress,
+      functionName: nameMethod,
+      args: [],
+      value: inputValue
+    })
+  }
+
   return (
     <>
       <div className={styles.wallet}>
-        <w3m-button />
+        <w3m-account-button />
       </div>
       <div className={styles.search}>
         <input
@@ -81,9 +110,10 @@ const Account: FC<IAccount> = ({ account }) => {
         <button type='button' className={styles.btn} onClick={useContract}>
           Start
         </button>
-        {isContract ? (
+      </div>
+      {isContract ? (
+        <>
           <div className={styles.contract}>
-            <div className={styles.show}>Result: {result}</div>
             <div className={styles.read}>
               <h2>Read</h2>
               <div>
@@ -92,7 +122,7 @@ const Account: FC<IAccount> = ({ account }) => {
                     type='button'
                     key={nameMethod}
                     className={styles['btn-methods']}
-                    onClick={() => setMethodName(nameMethod)}
+                    onClick={() => handleReadMethodClick(nameMethod)}
                   >
                     {nameMethod}
                   </button>
@@ -107,14 +137,7 @@ const Account: FC<IAccount> = ({ account }) => {
                     type='button'
                     key={nameMethod}
                     className={styles['btn-methods']}
-                    onClick={() =>
-                      writeContract({
-                        abi,
-                        address: contractAddress,
-                        functionName: nameMethod,
-                        args: []
-                      })
-                    }
+                    onClick={() => handleWriteMethodClick(nameMethod)}
                   >
                     {nameMethod}
                   </button>
@@ -127,15 +150,7 @@ const Account: FC<IAccount> = ({ account }) => {
                       type='button'
                       key={nameMethod}
                       className={styles['btn-methods']}
-                      onClick={() =>
-                        writeContract({
-                          abi,
-                          address: contractAddress,
-                          functionName: nameMethod,
-                          args: [],
-                          value: inputValue
-                        })
-                      }
+                      onClick={() => handlePayableMethodClick(nameMethod)}
                     >
                       {nameMethod}
                     </button>
@@ -150,10 +165,11 @@ const Account: FC<IAccount> = ({ account }) => {
               </div>
             </div>
           </div>
-        ) : (
-          <div>Contract not found!</div>
-        )}
-      </div>
+          <div className={styles.contract}>Result: {result}</div>
+        </>
+      ) : (
+        <div>Contract not found!</div>
+      )}
     </>
   )
 }
